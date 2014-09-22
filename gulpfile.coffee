@@ -1,6 +1,7 @@
 'use strict'
 gulp       = require 'gulp'
 gp         = (require 'gulp-load-plugins') lazy: false
+concat     = require 'gulp-concat'
 path       = require 'path'
 browserify = require 'browserify'
 source     = require 'vinyl-source-stream'
@@ -20,8 +21,7 @@ gulp.task 'js', ->
   .transform 'coffeeify'
   .transform 'deamdify'
   .transform 'debowerify'
-  .transform 'uglifyify'
-  .bundle()
+  .bundle({debug:true})
   # Pass desired file name to browserify with vinyl
   .pipe source 'main.js'
   # Start piping stream to tasks!
@@ -78,7 +78,7 @@ gulp.task 'watch', ['connect'], ->
         reloadasset = 'www/css/main.css'
       when '.coffee', '.js'
         taskname = 'js'
-        reloadasset = 'www/js/main.js'
+        reloadasset = ['www/js/main.js','www/js/bubble.js']
       else
         taskname = 'img'
         reloadasset = "www/img/#{path.basename event.path}"
