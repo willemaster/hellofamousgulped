@@ -29,9 +29,9 @@ Random = require 'famous/math/Random'
 class BubbleBox extends View
   DEFAULT_OPTIONS:
     numBodies: 8
-    gravity: [0, 0, 0]
-    size: [200, 200]
-    origin: [.5, .5]
+    primaryForce: [0.00001, 0, 0]
+    size: [500, 500]
+    origin: [0, 0]
 
   constructor: (@options)->
     @constructor.DEFAULT_OPTIONS = @DEFAULT_OPTIONS
@@ -41,7 +41,7 @@ class BubbleBox extends View
       classes: ['bubble-main-box']
     mod = new Modifier origin: @options.origin
     @add(mod).add surf
-    @gravity = new Force @options.gravity
+    @primaryForce = new Force @options.primaryForce
     @walls = new Walls
       size: @options.size
       origin: @options.origin
@@ -57,7 +57,7 @@ class BubbleBox extends View
     bubble = new Bubble()
     @pe.addBody bubble.body
     bubble.state.transformFrom =>
-      @gravity.applyForce bubble.body
+      @primaryForce.applyForce bubble.body
       bubble.body.getTransform()
     (@add bubble.state).add bubble.shape
     @pe.attach [
@@ -81,9 +81,9 @@ class Bubble
       size: [radius * 2, radius * 2]
       classes: ['bubble-bluebubble']
       properties: borderRadius: "#{radius}px"
-    @shape.setContent("face1.png")
-    @body = new Circle radius: radius, mass: 1.2, velocity: [10, 10, 0]
-    @state = new Modifier origin: [.5, .5]
+    @shape.setContent("img/face1.png")
+    @body = new Circle radius: radius, mass: 1, velocity: [0.1, 0.1, 0]
+    @state = new Modifier origin: [0, 0]
 
 
 mainCtx = Engine.createContext()

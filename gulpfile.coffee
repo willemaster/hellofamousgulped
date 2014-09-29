@@ -51,7 +51,7 @@ gulp.task 'clean', ->
     .pipe gp.clean force: true
 
 # Build
-gulp.task 'build', ['html', 'js', 'css']
+gulp.task 'build', ['html', 'js', 'css', 'img']
 
 # Default task
 gulp.task 'default', ['clean'], -> gulp.start 'build'
