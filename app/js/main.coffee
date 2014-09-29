@@ -29,7 +29,7 @@ Random = require 'famous/math/Random'
 class BubbleBox extends View
   DEFAULT_OPTIONS:
     numBodies: 8
-    primaryForce: [0.00001, 0, 0]
+    primaryForce: [0.000001, 0.000001, 0]
     size: [500, 500]
     origin: [0, 0]
 
@@ -82,7 +82,7 @@ class Bubble
       classes: ['bubble-bluebubble']
       properties: borderRadius: "#{radius}px"
     @shape.setContent("img/face1.png")
-    @body = new Circle radius: radius, mass: 1, velocity: [0.1, 0.1, 0]
+    @body = new Circle radius: radius, mass: 1, velocity: [(Random.integer 0, 1) * 0.1, (Random.integer 0, 1) * 0.1, 0]
     @state = new Modifier origin: [0, 0]
 
 
