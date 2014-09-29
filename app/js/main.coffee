@@ -9,102 +9,84 @@ require 'colors/coffee/colors'
 # Require Famo.us libraries
 Engine = require 'famous/core/Engine'
 Surface = require 'famous/core/Surface'
+ImageSurface = require 'famous/surfaces/ImageSurface'
 View = require 'famous/core/View'
 Modifier = require 'famous/core/Modifier'
-
-# Create the main context
-mainContext = Engine.createContext()
-
-outline = new Surface
-  size: [200, 200]
-  content: 'Hello world in Famo.us'
-  classes: ['bgColor']
-  properties:
-    lineHeight: '200px'
-    textAlign: 'center'
-
-outlineModifier = new Modifier
-  origin: [0.5, 0.5]
-
-mainContext
-  .add outlineModifier
-  .add outline
+Force = require 'famous/physics/forces/Force'
+Walls = require 'famous/physics/constraints/Walls'
+PhysicsEngine = require 'famous/physics/PhysicsEngine'
+Collision = require 'famous/physics/constraints/Collision'
+GenericSync = require 'famous/inputs/GenericSync'
+MouseSync = require 'famous/inputs/MouseSync'
+TouchSync = require 'famous/inputs/TouchSync'
+Circle = require 'famous/physics/bodies/Circle'
+Transform = require 'famous/core/Transform'
+Timer = require 'famous/utilities/Timer'
+Random = require 'famous/math/Random'
 
 
 
-# class @AppView extends View
-#   DEFAULT_OPTIONS:
-#     numBodies: 10
-#     gravity: [0, 0.0015, 0]
-#   constructor: (@options)->
-#     @constructor.DEFAULT_OPTIONS = @DEFAULT_OPTIONS
-#     super @options
-#     surf = new famous.core.Surface
-#       size: [400, 400]
-#       properties:
-#         backgroundColor: '#FFDC00'
-#         borderRadius: '8px'
-#     mod = new famous.core.Modifier
-#       origin: [.5, .5]
-#     @add(mod).add surf
-#     @gravity = new famous.physics.forces.Force @options.gravity
-#     @ceiling = new famous.physics.constraints.Wall
-#       normal: [0, 1, 0]
-#       distance: 200
-#       restitution: 0
-#     @floor = new famous.physics.constraints.Wall
-#       normal: [0, -1, 0]
-#       distance: 200
-#       restitution: 0
-#     @left = new famous.physics.constraints.Wall
-#       normal: [1, 0, 0]
-#       distance: 200
-#       restitution: 0
-#     @right = new famous.physics.constraints.Wall
-#       normal: [-1, 0, 0]
-#       distance: 200
-#       restitution: 0
-#     @pe = new famous.physics.PhysicsEngine()
-#     @collision = new famous.physics.constraints.Collision restitution: 0
-#     @bubbleBodies = []
-#     famous.inputs.GenericSync.register
-#       'mouse': famous.inputs.MouseSync
-#       'touch': famous.inputs.TouchSync
-#   addDragger: ->
-#     @dragger = new Dragger()
-#     @pe.addBody @dragger.body
-#     (@_add @dragger.state).add @dragger.shape
-#     sync = new famous.inputs.GenericSync ['mouse', 'touch']
-#     @dragger.shape.pipe sync
-#     sync.on 'update', (data) =>
-#       @dragger.position[0] += data.delta[0]
-#       @dragger.position[1] += data.delta[1]
-#       @dragger.body.setPosition @dragger.position
+class BubbleBox extends View
+  DEFAULT_OPTIONS:
+    numBodies: 8
+    gravity: [0, 0, 0]
+    size: [200, 200]
+    origin: [.5, .5]
 
-#   addBubble: (i) =>
-#     bubble = new Bubble()
-#     @pe.addBody bubble.body
-#     bubble.state.transformFrom =>
-#       @gravity.applyForce bubble.body
-#       bubble.body.getTransform()
-#     (@add bubble.state).add bubble.shape
-#     @pe.attach [@right, @left, @floor, @ceiling], bubble.body
-#     (@pe.attach @collision, @bubbleBodies, bubble.body) if i > 0
-#     @pe.attach @collision, [bubble.body], @dragger.body
-#     @bubbleBodies.push bubble.body
+  constructor: (@options)->
+    @constructor.DEFAULT_OPTIONS = @DEFAULT_OPTIONS
+    super @options
+    surf = new Surface
+      size: @options.size
+      classes: ['bubble-main-box']
+    mod = new Modifier origin: @options.origin
+    @add(mod).add surf
+    @gravity = new Force @options.gravity
+    @walls = new Walls
+      size: @options.size
+      origin: @options.origin
+    @pe = new PhysicsEngine()
+    #@collision = new Collision restitution: 0
+    @bubbleBodies = []
+    GenericSync.register
+      'mouse': MouseSync
+      'touch': TouchSync
 
-#   addBubbles: ->
-#     [0...@options.numBodies].map (i) =>
-#       famous.utilities.Timer.setTimeout (@addBubble.bind @, i), 1000
 
-# class @Bubble
-#   constructor: ->
-#     radius = famous.math.Random.integer 20, 60
-#     @shape = new famous.core.Surface
-#       size: [radius * 2, radius * 2]
-#       properties:
-#         backgroundColor: '#7FDBFF'
-#         border: '3px solid #0074D9'
-#         borderRadius: "#{radius}px"
-#     @body = new famous.physics.bodies.Circle radius: radius, mass: 2
-#     @state = new famous.core.Modifier origin: [.5, .5]
+  addBubble: (i) =>
+    bubble = new Bubble()
+    @pe.addBody bubble.body
+    bubble.state.transformFrom =>
+      @gravity.applyForce bubble.body
+      bubble.body.getTransform()
+    (@add bubble.state).add bubble.shape
+    @pe.attach [
+      @walls.components[0]
+      @walls.components[1]
+      @walls.components[2]
+      @walls.components[3]
+    ] , bubble.body
+    #(@pe.attach @collision, @bubbleBodies, bubble.body) if i > 0
+    #@pe.attach @collision, [bubble.body], @dragger.body
+    @bubbleBodies.push bubble.body
+
+  addBubbles: ->
+    [0...@options.numBodies].map (i) =>
+      Timer.setTimeout (@addBubble.bind @, i), 1000
+
+class Bubble
+  constructor: ->
+    radius = Random.integer 20, 60
+    @shape = new ImageSurface
+      size: [radius * 2, radius * 2]
+      classes: ['bubble-bluebubble']
+      properties: borderRadius: "#{radius}px"
+    @shape.setContent("face1.png")
+    @body = new Circle radius: radius, mass: 1.2, velocity: [10, 10, 0]
+    @state = new Modifier origin: [.5, .5]
+
+
+mainCtx = Engine.createContext()
+appView = new BubbleBox()
+mainCtx.add appView
+appView.addBubbles()

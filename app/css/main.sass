@@ -41,18 +41,90 @@ table
 // Import Colors
 @import bower_components/colors/sass/colors
 
-// Real theming happens hereafter
-html, body
-  background-color: $orange
-
 body
   color: $white
   font-family: Helvetica, Arial, sans-serif
 
-.header-surface
-  background-color: $red
-  color: $yellow
+html
+  width: 1000px
+  height: 1000px
+  margin: 0
+  padding: 0
+  overflow: 'hidden'
+  webkitTransformStyle: 'preserve-3d'
+  transformStyle: 'preserve-3d'
 
-.footer-surface
-  background-color: $green
-  color: $white
+body,
+  backgroundColor: '#FF851B'
+  position: 'absolute'
+  width: 1000px
+  height: 1000px
+  margin: 0
+  padding: 0
+  webkitTransformStyle: 'preserve-3d'
+  transformStyle: 'preserve-3d'
+  webkitFontSmoothing: 'antialiased'
+  webkitTapHighlightColor: 'transparent'
+  webkitPerspective: 0
+  perspective: 'none'
+  overflow: 'hidden'
+
+.famous-container
+  position: 'absolute'
+  top: 0
+  left: 0
+  bottom: 0
+  right: 0
+  overflow: 'visible'
+  webkitTransformStyle: 'preserve-3d'
+  transformStyle: 'preserve-3d'
+  webkitBackfaceVisibility: 'visible'
+  backfaceVisibility: 'visible'
+  pointerEvents: 'none'
+
+.famous-group
+  position: 'absolute'
+  top: 0
+  left: 0
+  bottom: 0
+  right: 0
+  overflow: 'visible'
+  webkitTransformStyle: 'preserve-3d'
+  transformStyle: 'preserve-3d'
+  webkitBackfaceVisibility: 'visible'
+  backfaceVisibility: 'visible'
+  pointerEvents: 'none'
+  width: 0
+  height: 0
+  margin: 0
+  padding: 0
+
+.famous-surface
+  position: 'absolute'
+  webkitTransformOrigin: 'center center'
+  transformOrigin: 'center center'
+  webkitBackfaceVisibility: 'hidden'
+  backfaceVisibility: 'hidden'
+  webkitTransformStyle: 'flat'
+  transformStyle: 'preserve-3d'
+  webkitBoxSizing: 'border-box'
+  mozBoxSizing: 'border-box'
+  webkitTapHighlightColor: 'transparent'
+  pointerEvents: 'auto'
+
+.famous-container-group
+  position: 'relative'
+  width: 1000px
+  height: 1000px
+
+.bubble-main-box
+  backgroundColor: '#FFDC00'
+  borderRadius: '8px'
+
+.bubble-bluebubble
+  backgroundColor: '#7FDBFF'
+  border: '3px solid #0074D9'
+
+.bubble-dragger
+  border: '2px solid #FF4136'
+  backgroundColor: 'rgba(255, 255, 255, 0.5)'
