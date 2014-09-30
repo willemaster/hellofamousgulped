@@ -30,8 +30,8 @@ class BubbleBox extends View
   DEFAULT_OPTIONS:
     numBodies: 8
     primaryForce: [0.000001, 0.000001, 0]
-    size: [500, 500]
-    origin: [0, 0]
+    size: [700, 700]
+    origin: [0.5, 0.5]
 
   constructor: (@options)->
     @constructor.DEFAULT_OPTIONS = @DEFAULT_OPTIONS
@@ -47,17 +47,17 @@ class BubbleBox extends View
       origin: @options.origin
     @pe = new PhysicsEngine()
     #@collision = new Collision restitution: 0
+    @bubbles = []
     @bubbleBodies = []
     GenericSync.register
       'mouse': MouseSync
       'touch': TouchSync
 
-
   addBubble: (i) =>
     bubble = new Bubble()
     @pe.addBody bubble.body
     bubble.state.transformFrom =>
-      @primaryForce.applyForce bubble.body
+      (new Force [(Random.integer -1, 1) * 0.0001, (Random.integer -1, 1) * 0.0001, 0]).applyForce bubble.body
       bubble.body.getTransform()
     (@add bubble.state).add bubble.shape
     @pe.attach [
@@ -69,10 +69,18 @@ class BubbleBox extends View
     #(@pe.attach @collision, @bubbleBodies, bubble.body) if i > 0
     #@pe.attach @collision, [bubble.body], @dragger.body
     @bubbleBodies.push bubble.body
+    @bubbles.push bubble
+  
+  updateBubble: (i) =>
+    @bubbles[i].update()
 
   addBubbles: ->
     [0...@options.numBodies].map (i) =>
       Timer.setTimeout (@addBubble.bind @, i), 1000
+
+  updateBubbles: ->
+    [0...@options.numBodies].map (i) =>
+      Timer.setTimeout (@updateBubble.bind @, i), 2000
 
 class Bubble
   constructor: ->
@@ -82,11 +90,15 @@ class Bubble
       classes: ['bubble-bluebubble']
       properties: borderRadius: "#{radius}px"
     @shape.setContent("img/face1.png")
-    @body = new Circle radius: radius, mass: 1, velocity: [(Random.integer 0, 1) * 0.1, (Random.integer 0, 1) * 0.1, 0]
-    @state = new Modifier origin: [0, 0]
-
+    @body = new Circle radius: radius, mass: 1, velocity: [(Random.integer 0.5, 1) * 0.1, (Random.integer 0.5, 1) * 0.1, 0]
+    @state = new Modifier origin: [(Random.integer -1, 1), (Random.integer -1, 1)]
+  update: ->
+    @state.transformFrom =>
+      (new Force [(Random.integer -1, 1) * 0.00001, (Random.integer -1, 1) * 0.00001, 0]).applyForce @body
+      @body.getTransform()
 
 mainCtx = Engine.createContext()
 appView = new BubbleBox()
 mainCtx.add appView
 appView.addBubbles()
+appView.updateBubbles()
