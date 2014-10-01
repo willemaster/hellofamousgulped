@@ -32,7 +32,7 @@ class BubbleBox extends View
   DEFAULT_OPTIONS:
     numBodies: 8
     primaryForce: [0.000001, 0.000001, 0]
-    size: [400, 400]
+    size: [700, 700]
     origin: [0.5, 0.5]
 
   constructor: (@options)->
@@ -58,7 +58,7 @@ class BubbleBox extends View
   addBubble: (i) =>
     bubble = new Bubble(i)
     @pe.addBody bubble.body
-    @mainForce = new Force [0, 0.0001, 0]
+    @mainForce = new Force [0, -0.00001, 0]
     @mainForce.setEnergy 10
     bubble.state.transformFrom =>
       @mainForce.applyForce bubble.body
@@ -98,7 +98,7 @@ class Bubble
     @shape.on("click", ->
         alert @id
     )
-    @body = new Circle radius: radius, mass: 1
+    @body = new Circle radius: radius, mass: 1, velocity: [0.1, 0, 0]
     @state = new Modifier origin: [(Random.integer -1, 1), (Random.integer -1, 1)]
   update: ->
     @state.transformFrom =>
