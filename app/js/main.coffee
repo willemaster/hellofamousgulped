@@ -13,6 +13,7 @@ ImageSurface = require 'famous/surfaces/ImageSurface'
 View = require 'famous/core/View'
 Modifier = require 'famous/core/Modifier'
 Force = require 'famous/physics/forces/Force'
+RotationalSpring = require 'famous/physics/forces/RotationalSpring'
 Walls = require 'famous/physics/constraints/Walls'
 PhysicsEngine = require 'famous/physics/PhysicsEngine'
 Collision = require 'famous/physics/constraints/Collision'
@@ -23,6 +24,7 @@ Circle = require 'famous/physics/bodies/Circle'
 Transform = require 'famous/core/Transform'
 Timer = require 'famous/utilities/Timer'
 Random = require 'famous/math/Random'
+Vector = require 'famous/math/Vector'
 
 
 
@@ -30,7 +32,7 @@ class BubbleBox extends View
   DEFAULT_OPTIONS:
     numBodies: 8
     primaryForce: [0.000001, 0.000001, 0]
-    size: [700, 700]
+    size: [400, 400]
     origin: [0.5, 0.5]
 
   constructor: (@options)->
@@ -54,10 +56,12 @@ class BubbleBox extends View
       'touch': TouchSync
 
   addBubble: (i) =>
-    bubble = new Bubble()
+    bubble = new Bubble(i)
     @pe.addBody bubble.body
+    @mainForce = new Force [0, 0.0001, 0]
+    @mainForce.setEnergy 10
     bubble.state.transformFrom =>
-      (new Force [(Random.integer -1, 1) * 0.0001, (Random.integer -1, 1) * 0.0001, 0]).applyForce bubble.body
+      @mainForce.applyForce bubble.body
       bubble.body.getTransform()
     (@add bubble.state).add bubble.shape
     @pe.attach [
@@ -80,25 +84,29 @@ class BubbleBox extends View
 
   updateBubbles: ->
     [0...@options.numBodies].map (i) =>
-      Timer.setTimeout (@updateBubble.bind @, i), 2000
+      Timer.setTimeout (@updateBubble.bind @, i), 4000
 
 class Bubble
-  constructor: ->
+  constructor: (id) ->
+    @id = id
     radius = Random.integer 20, 60
     @shape = new ImageSurface
       size: [radius * 2, radius * 2]
       classes: ['bubble-bluebubble']
       properties: borderRadius: "#{radius}px"
     @shape.setContent("img/face1.png")
-    @body = new Circle radius: radius, mass: 1, velocity: [(Random.integer 0.5, 1) * 0.1, (Random.integer 0.5, 1) * 0.1, 0]
+    @shape.on("click", ->
+        alert @id
+    )
+    @body = new Circle radius: radius, mass: 1
     @state = new Modifier origin: [(Random.integer -1, 1), (Random.integer -1, 1)]
   update: ->
     @state.transformFrom =>
-      (new Force [(Random.integer -1, 1) * 0.00001, (Random.integer -1, 1) * 0.00001, 0]).applyForce @body
+      # (new Force [(Random.integer -1, 1) * 0.0001, (Random.integer -1, 1) * 0.0001, 0]).applyForce @body
       @body.getTransform()
 
 mainCtx = Engine.createContext()
 appView = new BubbleBox()
 mainCtx.add appView
 appView.addBubbles()
-appView.updateBubbles()
+# appView.updateBubbles()
